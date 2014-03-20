@@ -216,7 +216,7 @@ T nsvalue_to_oscpack(NSValue *value) {
 
 - (BOOL)onUdpSocket:(AsyncUdpSocket *)socket didReceiveData:(NSData *)data withTag:(long)tag fromHost:(NSString *)host port:(UInt16)port
 {
-    NSUInteger length = [data length];
+    osc::osc_bundle_element_size_t length = [data length];
     const char *c_data = (char *)[data bytes];
     osc::ReceivedPacket p( c_data, length );
 

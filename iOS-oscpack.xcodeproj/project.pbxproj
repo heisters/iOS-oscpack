@@ -31,6 +31,7 @@
 		3C01B4AD18DA1E730044D432 /* OscTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C01B48518DA1E730044D432 /* OscTypes.cpp */; };
 		3C01B4B818DA3F600044D432 /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C01B4B718DA3F600044D432 /* AsyncUdpSocket.m */; };
 		3C01B4B918DA3F600044D432 /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C01B4B718DA3F600044D432 /* AsyncUdpSocket.m */; };
+		3C01B4C518DB77310044D432 /* OSCPack.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C01B45F18DA1DB70044D432 /* OSCPack.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -243,6 +244,17 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		3C01B4C418DB772B0044D432 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C01B4C518DB77310044D432 /* OSCPack.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
 		3C01B43518DA1C720044D432 /* iOS-oscpack */ = {
 			isa = PBXNativeTarget;
@@ -251,6 +263,7 @@
 				3C01B43218DA1C720044D432 /* Sources */,
 				3C01B43318DA1C720044D432 /* Frameworks */,
 				3C01B43418DA1C720044D432 /* CopyFiles */,
+				3C01B4C418DB772B0044D432 /* Headers */,
 			);
 			buildRules = (
 			);
@@ -458,6 +471,7 @@
 				DSTROOT = /tmp/iOS_oscpack.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Supporting Files/iOS-oscpack-Prefix.pch";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
