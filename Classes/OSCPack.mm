@@ -360,6 +360,11 @@ T nsvalue_to_oscpack(NSValue *value) {
                       tag:0];
 
 }
+
+- (void)udpSocket:(GCDAsyncUdpSocket *)sock didNotSendDataWithTag:(long)tag dueToError:(NSError *)error
+{
+    NSLog(@"%@", error);
+}
 @end
 
 
