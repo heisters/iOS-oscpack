@@ -34,10 +34,63 @@ static int PORT = 5555;
     [super tearDown];
 }
 
-- (void)tick
+// From https://github.com/sas71/AsyncTest
+
+- (dispatch_queue_t)serialQueue
 {
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    static dispatch_queue_t serialQueue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        serialQueue = dispatch_queue_create("SenTestCase.serialQueue", DISPATCH_QUEUE_SERIAL);
+    });
+    return serialQueue;
 }
+
+
+// new version based on GHUnit
+- (void)waitWithTimeout:(NSTimeInterval)timeout forSuccessInBlock:(BOOL(^)())block
+{
+    BOOL(^serialBlock)() = ^BOOL{
+        __block BOOL result;
+        // suppress spurious analyser warning
+#ifndef __clang_analyzer__
+        dispatch_sync(self.serialQueue, ^{
+            if (block) {
+                result = block();
+            }
+        });
+#endif
+        return result;
+    };
+    NSArray *_runLoopModes = [NSArray arrayWithObjects:NSDefaultRunLoopMode, NSRunLoopCommonModes, nil];
+
+    NSTimeInterval checkEveryInterval = 0.01;
+    NSDate *runUntilDate = [NSDate dateWithTimeIntervalSinceNow:timeout];
+    NSInteger runIndex = 0;
+    while(! serialBlock()) {
+        NSString *mode = [_runLoopModes objectAtIndex:(runIndex++ % [_runLoopModes count])];
+
+        @autoreleasepool {
+            if (!mode || ![[NSRunLoop currentRunLoop] runMode:mode beforeDate:[NSDate dateWithTimeIntervalSinceNow:checkEveryInterval]]) {
+                // If there were no run loop sources or timers then we should sleep for the interval
+                [NSThread sleepForTimeInterval:checkEveryInterval];
+            }
+        }
+
+        // If current date is after the run until date
+        if ([runUntilDate compare:[NSDate date]] == NSOrderedAscending) {
+            break;
+        }
+    }
+}
+
+- (void)waitForMessages:(NSInteger)numMessages
+{
+    [self waitWithTimeout:0.25 forSuccessInBlock:^BOOL{
+        return self.listener.countMessages == numMessages;
+    }];
+}
+
 
 - (void)testCanCloseSocket
 {
@@ -53,21 +106,18 @@ static int PORT = 5555;
 
 - (void)testRoundtrip
 {
-    BOOL success = [[[[self.sender message] to:@"/path/1"] addFloat:1.0] send];
-    XCTAssert(success, @"sender did not send data");
-    [self.listener receive];
-    [self tick];
+    [[[[self.sender message] to:@"/path/1"] addFloat:1.0] send];
 
+    [self waitForMessages:1];
     XCTAssertEqual(self.listener.countMessages, 1, @"listener should have received one message");
 }
 
 - (void)testReadingMessages
 {
-    XCTAssert([[[[self.sender message] to:@"/path/1"] addFloat:1.0] send], @"sender did not send data");
-    XCTAssert([[[[self.sender message] to:@"/path/2"] addFloat:2.0] send], @"sender did not send data");
+    [[[[self.sender message] to:@"/path/1"] addFloat:1.0] send];
+    [[[[self.sender message] to:@"/path/2"] addFloat:2.0] send];
 
-    [self.listener receive];
-    [self tick];
+    [self waitForMessages:3]; // will timeout
 
 
     XCTAssertEqual(self.listener.countMessages, 2, @"listener should have %d messages", 2);
@@ -88,10 +138,10 @@ static int PORT = 5555;
 
 - (void)testIntegerMessages
 {
-    XCTAssert([[[[self.sender message] to:@"/path"] addInt32:1] send], @"sender did not send data");
+    [[[[self.sender message] to:@"/path"] addInt32:1] send];
 
-    [self.listener receive];
-    [self tick];
+    [self waitForMessages:1];
+
 
     XCTAssertEqual(self.listener.countMessages, 1, @"listener should have %d message", 1);
     OSCPackMessage *m = [self.listener popMessage];
@@ -102,10 +152,10 @@ static int PORT = 5555;
 
 - (void)testStringMessages
 {
-    XCTAssert([[[[self.sender message] to:@"/path"] addString:"string"] send], @"sender did not send data");
+    [[[[self.sender message] to:@"/path"] addString:"string"] send];
 
-    [self.listener receive];
-    [self tick];
+    [self waitForMessages:1];
+
 
     XCTAssertEqual(self.listener.countMessages, 1, @"listener should have %d message", 1);
     OSCPackMessage *m = [self.listener popMessage];
@@ -117,10 +167,10 @@ static int PORT = 5555;
 - (void)testPolymorphicArguments
 {
     // NB: you need to be specific about NSValue types: @1.1f, NOT @1.1
-    XCTAssert([[[[[[self.sender message] to:@"/path"] add:@"string"] add:@1] add:@1.1f] send], @"sender did not send data");
+    [[[[[[self.sender message] to:@"/path"] add:@"string"] add:@1] add:@1.1f] send];
 
-    [self.listener receive];
-    [self tick];
+    [self waitForMessages:1];
+
 
     XCTAssertEqual(self.listener.countMessages, 1, @"listener should have %d message", 1);
     OSCPackMessage *m = [self.listener popMessage];

@@ -8,7 +8,6 @@
 //
 
 #import "OSCPack.h"
-#import "AsyncUdpSocket.h"
 #include "osc/OscOutboundPacketStream.h"
 #include "osc/OscReceivedElements.h"
 
@@ -129,9 +128,9 @@ T nsvalue_to_oscpack(NSValue *value) {
     [self addArgument:&aString objCType:@encode(typeof aString)];
     return self;
 }
-- (BOOL)send
+- (void)send
 {
-    return [self.sender send:self.build];
+    [self.sender send:self.build];
 }
 
 - (OSCPackMessage *)build
@@ -143,7 +142,7 @@ T nsvalue_to_oscpack(NSValue *value) {
 @end
 
 @interface OSCPackBase()
-@property (strong, nonatomic, readwrite) AsyncUdpSocket *socket;
+@property (strong, nonatomic, readwrite) GCDAsyncUdpSocket *socket;
 @end
 
 @implementation OSCPackBase
@@ -160,11 +159,11 @@ T nsvalue_to_oscpack(NSValue *value) {
 	if (!(self = [super init])) return nil;
 
     _port = port;
-    // Use IPV4 only for now, to avoid getting duplicate packets on both IPV4
-    // and IPV6
-    self.socket = [[AsyncUdpSocket alloc] initIPv4];
-    self.socket.delegate = self;
-    [self.socket setRunLoopModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+
+    self.socket = [[GCDAsyncUdpSocket alloc] initWithDelegate:self
+                                                delegateQueue:dispatch_get_main_queue()];
+    // disable ipv6 to avoid duplicate messages
+    [self.socket setIPv6Enabled:NO];
 
 	return self;
 }
@@ -195,6 +194,9 @@ T nsvalue_to_oscpack(NSValue *value) {
 
     self.messages = [NSMutableArray array];
 
+
+    // Bind
+
     NSError *error = nil;
     [self.socket bindToPort:self.port error:&error];
     if ( error ) {
@@ -206,15 +208,22 @@ T nsvalue_to_oscpack(NSValue *value) {
         NSLog(@"OSC listening on port %i", self.port);
     }
 
+
+    // Receive
+
+    error = nil;
+    [self.socket beginReceiving:&error];
+    if ( error ) {
+        [[NSException exceptionWithName:@"ListenerReceivingException"
+                                 reason:[NSString stringWithFormat:@"osc listener could not start receiving: %@", error]
+                               userInfo:@{@"error":error}]
+         raise];
+    }
+
     return self;
 }
 
-- (void)receive
-{
-    [self.socket receiveWithTimeout:-1 tag:0];
-}
-
-- (BOOL)onUdpSocket:(AsyncUdpSocket *)socket didReceiveData:(NSData *)data withTag:(long)tag fromHost:(NSString *)host port:(UInt16)port
+- (void)udpSocket:(GCDAsyncUdpSocket *)sock didReceiveData:(NSData *)data fromAddress:(NSData *)address withFilterContext:(id)filterContext
 {
     osc::osc_bundle_element_size_t length = [data length];
     const char *c_data = (char *)[data bytes];
@@ -253,8 +262,6 @@ T nsvalue_to_oscpack(NSValue *value) {
                                                               arguments:arguments];
         [self.messages insertObject:m_out atIndex:0];
     }
-
-    return NO; // no, we are not finished
 }
 
 - (NSUInteger)countMessages
@@ -312,7 +319,7 @@ T nsvalue_to_oscpack(NSValue *value) {
     return [[OSCPackMessageBuilder alloc] initWithSender:self];
 }
 
-- (BOOL)send:(OSCPackMessage *)message
+- (void)send:(OSCPackMessage *)message
 {
     // Send accelerometer data
     char buffer[BUFFER_SIZE];
@@ -346,11 +353,11 @@ T nsvalue_to_oscpack(NSValue *value) {
 
     packet << osc::EndMessage;
 
-    return [self.socket sendData:[NSData dataWithBytes:packet.Data() length:packet.Size()]
-                          toHost:self.host
-                            port:self.port
-                     withTimeout:-1
-                             tag:0];
+    [self.socket sendData:[NSData dataWithBytes:packet.Data() length:packet.Size()]
+                   toHost:self.host
+                     port:self.port
+              withTimeout:-1
+                      tag:0];
 
 }
 @end

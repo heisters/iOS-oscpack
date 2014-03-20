@@ -29,9 +29,9 @@
 		3C01B4AB18DA1E730044D432 /* OscReceivedElements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C01B48318DA1E730044D432 /* OscReceivedElements.cpp */; };
 		3C01B4AC18DA1E730044D432 /* OscTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C01B48518DA1E730044D432 /* OscTypes.cpp */; };
 		3C01B4AD18DA1E730044D432 /* OscTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C01B48518DA1E730044D432 /* OscTypes.cpp */; };
-		3C01B4B818DA3F600044D432 /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C01B4B718DA3F600044D432 /* AsyncUdpSocket.m */; };
-		3C01B4B918DA3F600044D432 /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C01B4B718DA3F600044D432 /* AsyncUdpSocket.m */; };
 		3C01B4C518DB77310044D432 /* OSCPack.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C01B45F18DA1DB70044D432 /* OSCPack.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3C01B4CB18DB8FF90044D432 /* GCDAsyncUdpSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C01B4C918DB8FF90044D432 /* GCDAsyncUdpSocket.h */; };
+		3C01B4CC18DB8FF90044D432 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C01B4CA18DB8FF90044D432 /* GCDAsyncUdpSocket.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,8 +88,8 @@
 		3C01B48418DA1E730044D432 /* OscReceivedElements.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OscReceivedElements.h; sourceTree = "<group>"; };
 		3C01B48518DA1E730044D432 /* OscTypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OscTypes.cpp; sourceTree = "<group>"; };
 		3C01B48618DA1E730044D432 /* OscTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OscTypes.h; sourceTree = "<group>"; };
-		3C01B4B618DA3F600044D432 /* AsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AsyncUdpSocket.h; sourceTree = "<group>"; };
-		3C01B4B718DA3F600044D432 /* AsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AsyncUdpSocket.m; sourceTree = "<group>"; };
+		3C01B4C918DB8FF90044D432 /* GCDAsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncUdpSocket.h; sourceTree = "<group>"; };
+		3C01B4CA18DB8FF90044D432 /* GCDAsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncUdpSocket.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,8 +149,8 @@
 		3C01B43B18DA1C720044D432 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				3C01B4B618DA3F600044D432 /* AsyncUdpSocket.h */,
-				3C01B4B718DA3F600044D432 /* AsyncUdpSocket.m */,
+				3C01B4C918DB8FF90044D432 /* GCDAsyncUdpSocket.h */,
+				3C01B4CA18DB8FF90044D432 /* GCDAsyncUdpSocket.m */,
 				3C01B45F18DA1DB70044D432 /* OSCPack.h */,
 				3C01B46018DA1DB70044D432 /* OSCPack.mm */,
 			);
@@ -250,6 +250,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C01B4C518DB77310044D432 /* OSCPack.h in Headers */,
+				3C01B4CB18DB8FF90044D432 /* GCDAsyncUdpSocket.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,9 +339,9 @@
 				3C01B46118DA1DB70044D432 /* OSCPack.mm in Sources */,
 				3C01B49A18DA1E730044D432 /* NetworkingUtils.cpp in Sources */,
 				3C01B4AA18DA1E730044D432 /* OscReceivedElements.cpp in Sources */,
-				3C01B4B818DA3F600044D432 /* AsyncUdpSocket.m in Sources */,
 				3C01B49818DA1E730044D432 /* IpEndpointName.cpp in Sources */,
 				3C01B4AC18DA1E730044D432 /* OscTypes.cpp in Sources */,
+				3C01B4CC18DB8FF90044D432 /* GCDAsyncUdpSocket.m in Sources */,
 				3C01B4A618DA1E730044D432 /* OscOutboundPacketStream.cpp in Sources */,
 				3C01B49C18DA1E730044D432 /* UdpSocket.cpp in Sources */,
 				3C01B4A818DA1E730044D432 /* OscPrintReceivedElements.cpp in Sources */,
@@ -354,7 +355,6 @@
 				3C01B45618DA1C720044D432 /* OSCPackTests.m in Sources */,
 				3C01B49B18DA1E730044D432 /* NetworkingUtils.cpp in Sources */,
 				3C01B4AB18DA1E730044D432 /* OscReceivedElements.cpp in Sources */,
-				3C01B4B918DA3F600044D432 /* AsyncUdpSocket.m in Sources */,
 				3C01B49918DA1E730044D432 /* IpEndpointName.cpp in Sources */,
 				3C01B4AD18DA1E730044D432 /* OscTypes.cpp in Sources */,
 				3C01B4A718DA1E730044D432 /* OscOutboundPacketStream.cpp in Sources */,

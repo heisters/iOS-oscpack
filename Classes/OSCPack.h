@@ -8,7 +8,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "AsyncUdpSocket.h"
+#import "GCDAsyncUdpSocket.h"
 
 typedef UInt16 OSCPackPortNumber;
 typedef float OSCPackFloat;
@@ -30,11 +30,11 @@ typedef const char * OSCPackString;
 - (OSCPackMessageBuilder *)addFloat:(OSCPackFloat)aFloat;
 - (OSCPackMessageBuilder *)addString:(OSCPackString)aString;
 - (OSCPackMessage *)build;
-- (BOOL)send;
+- (void)send;
 @end
 
 
-@interface OSCPackBase : NSObject< AsyncUdpSocketDelegate >
+@interface OSCPackBase : NSObject< GCDAsyncUdpSocketDelegate >
 @property (assign, nonatomic, readonly) OSCPackPortNumber port;
 
 - (id)initWithPort:(OSCPackPortNumber)port;
@@ -44,7 +44,6 @@ typedef const char * OSCPackString;
 
 
 @interface OSCPackListener : OSCPackBase
-- (void)receive;
 - (NSUInteger)countMessages;
 - (OSCPackMessage *)popMessage;
 @end
@@ -54,7 +53,7 @@ typedef const char * OSCPackString;
 @property (strong, nonatomic, readwrite) NSString *host;
 - (id)initWithHost:(NSString *)host port:(OSCPackPortNumber)port;
 - (void)enableBroadcast;
-- (BOOL)send:(OSCPackMessage *)message;
+- (void)send:(OSCPackMessage *)message;
 - (OSCPackMessageBuilder *)message;
 @end
 
