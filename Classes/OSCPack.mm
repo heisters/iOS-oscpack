@@ -12,7 +12,23 @@
 #include "osc/OscOutboundPacketStream.h"
 #include "osc/OscReceivedElements.h"
 
+//#define is_oscpack_arg_type(nsvalue, type) \
+//strcmp( nsvalue.objCType, @encode(type) ) == 0
+
 const static int BUFFER_SIZE = 1024;
+
+template <typename T>
+bool is_oscpack_arg_type(NSValue *value) {
+    return strcmp( value.objCType, @encode(T) ) == 0;
+}
+
+template <typename T>
+T nsvalue_to_oscpack(NSValue *value) {
+    T oscpack;
+    [value getValue:&oscpack];
+    return oscpack;
+}
+
 
 @interface OSCPackMessage ()
 @end
@@ -61,19 +77,56 @@ const static int BUFFER_SIZE = 1024;
     [self.arguments addObject:[NSValue valueWithBytes:arg_p objCType:type]];
 }
 
+- (OSCPackMessageBuilder *)add:(NSObject *)obj
+{
+    if ( [obj isKindOfClass:[NSString class]] )
+    {
+        [self addString:[(NSString *)obj UTF8String]];
+    }
+    else if ( [obj isKindOfClass:[NSValue class]] )
+    {
+        NSValue *val = (NSValue *)obj;
+        if ( is_oscpack_arg_type< OSCPackFloat >(val) ) {
+            [self addFloat:nsvalue_to_oscpack< OSCPackFloat >(val)];
+        }
+        else if ( is_oscpack_arg_type< OSCPackInt32 >(val) )
+        {
+            [self addInt32:nsvalue_to_oscpack< OSCPackInt32 >(val)];
+        }
+        else
+        {
+            [[NSException exceptionWithName:@"OSCArgumentException"
+                                     reason:[NSString stringWithFormat:@"argument with encoding %s is not an int, float, or string", val.objCType]
+                                   userInfo:nil]
+             raise];
+        }
+    }
+    else
+    {
+        [[NSException exceptionWithName:@"OSCArgumentException"
+                                 reason:@"argument is not an int, float, or string"
+                               userInfo:nil]
+         raise];
+    }
+
+    return self;
+}
+
 - (OSCPackMessageBuilder *)addInt32:(OSCPackInt32)aInt32
 {
-    [self addArgument:&aInt32 objCType:@encode(OSCPackInt32)];
+    [self addArgument:&aInt32 objCType:@encode(typeof aInt32)];
     return self;
 }
 - (OSCPackMessageBuilder *)addFloat:(OSCPackFloat)aFloat
 {
-    [self addArgument:&aFloat objCType:@encode(OSCPackFloat)];
+    [self addArgument:&aFloat objCType:@encode(typeof aFloat)];
     return self;
 }
 - (OSCPackMessageBuilder *)addString:(OSCPackString)aString
 {
-    [self addArgument:&aString objCType:@encode(OSCPackString)];
+    // For some reason, if you use @encode(OSCPackString) here, it returns "*"
+    // instead of "r*". Using typeof aString fixes the problem...
+    [self addArgument:&aString objCType:@encode(typeof aString)];
     return self;
 }
 - (BOOL)send
@@ -269,23 +322,17 @@ const static int BUFFER_SIZE = 1024;
 
     for ( NSValue *arg in message.arguments )
     {
-        if ( strcmp(arg.objCType, @encode(OSCPackFloat)) == 0 )
+        if ( is_oscpack_arg_type< OSCPackFloat >(arg) )
         {
-            OSCPackFloat aFloat;
-            [arg getValue:&aFloat];
-            packet << aFloat;
+            packet << nsvalue_to_oscpack< OSCPackFloat >(arg);
         }
-        else if ( strcmp(arg.objCType, @encode(OSCPackInt32)) == 0 )
+        else if ( is_oscpack_arg_type< OSCPackInt32 >(arg) )
         {
-            OSCPackInt32 aInt32;
-            [arg getValue:&aInt32];
-            packet << aInt32;
+            packet << nsvalue_to_oscpack< OSCPackInt32 >(arg);
         }
-        else if ( strcmp(arg.objCType, @encode(OSCPackString)) == 0 )
+        else if ( is_oscpack_arg_type< OSCPackString >(arg) )
         {
-            OSCPackString aString;
-            [arg getValue:&aString];
-            packet << aString;
+            packet << nsvalue_to_oscpack< OSCPackString >(arg);
         }
         else
         {

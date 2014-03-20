@@ -114,4 +114,20 @@ static int PORT = 5555;
     XCTAssertEqualObjects(m.arguments, @[@"string"]);
 }
 
+- (void)testPolymorphicArguments
+{
+    // NB: you need to be specific about NSValue types: @1.1f, NOT @1.1
+    XCTAssert([[[[[[self.sender message] to:@"/path"] add:@"string"] add:@1] add:@1.1f] send], @"sender did not send data");
+
+    [self.listener receive];
+    [self tick];
+
+    XCTAssertEqual(self.listener.countMessages, 1, @"listener should have %d message", 1);
+    OSCPackMessage *m = [self.listener popMessage];
+
+    XCTAssertEqualObjects(m.address, @"/path");
+    NSArray *args = @[@"string", @1, @1.1f]; // parser doesn't like this inline :P
+    XCTAssertEqualObjects(m.arguments, args);
+}
+
 @end

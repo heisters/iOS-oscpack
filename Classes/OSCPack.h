@@ -25,6 +25,7 @@ typedef const char * OSCPackString;
 
 @interface OSCPackMessageBuilder : NSObject
 - (OSCPackMessageBuilder *)to:(NSString *)address;
+- (OSCPackMessageBuilder *)add:(NSObject *)obj;
 - (OSCPackMessageBuilder *)addInt32:(OSCPackInt32)aInt32;
 - (OSCPackMessageBuilder *)addFloat:(OSCPackFloat)aFloat;
 - (OSCPackMessageBuilder *)addString:(OSCPackString)aString;
