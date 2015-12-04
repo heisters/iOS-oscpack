@@ -128,6 +128,11 @@ T nsvalue_to_oscpack(NSValue *value) {
     [self addArgument:&aString objCType:@encode(typeof aString)];
     return self;
 }
+- (OSCPackMessageBuilder *)addDouble:(OSCPackDouble)aDouble
+{
+    [self addArgument:&aDouble objCType:@encode(typeof aDouble)];
+    return self;
+}
 - (void)send
 {
     [self.sender send:self.build];
@@ -340,6 +345,10 @@ T nsvalue_to_oscpack(NSValue *value) {
         else if ( is_oscpack_arg_type< OSCPackString >(arg) )
         {
             packet << nsvalue_to_oscpack< OSCPackString >(arg);
+        }
+        else if ( is_oscpack_arg_type< OSCPackDouble >(arg) )
+        {
+            packet << nsvalue_to_oscpack< OSCPackDouble >(arg);
         }
         else
         {

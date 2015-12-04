@@ -10,10 +10,11 @@
 #import <Foundation/Foundation.h>
 #import "GCDAsyncUdpSocket.h"
 
-typedef UInt16 OSCPackPortNumber;
-typedef float OSCPackFloat;
-typedef signed int OSCPackInt32;
-typedef const char * OSCPackString;
+typedef UInt16          OSCPackPortNumber;
+typedef float           OSCPackFloat;
+typedef signed int      OSCPackInt32;
+typedef const char *    OSCPackString;
+typedef double          OSCPackDouble;
 
 @interface OSCPackMessage : NSObject
 @property (strong, nonatomic, readonly) NSString *address;
@@ -29,6 +30,7 @@ typedef const char * OSCPackString;
 - (OSCPackMessageBuilder *)addInt32:(OSCPackInt32)aInt32;
 - (OSCPackMessageBuilder *)addFloat:(OSCPackFloat)aFloat;
 - (OSCPackMessageBuilder *)addString:(OSCPackString)aString;
+- (OSCPackMessageBuilder *)addDouble:(OSCPackDouble)aDouble;
 - (OSCPackMessage *)build;
 - (void)send;
 @end
